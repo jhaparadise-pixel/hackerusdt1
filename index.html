@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>TRON 靓地址生成器</title>
+  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button { padding: 8px; margin: 6px 0; width: 100%; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>TRON 靓地址生成器</h2>
+
+<input id="prefix" placeholder="输入想要的地址前缀（如 Jack / 888）" />
+<button onclick="generate()">开始生成</button>
+
+<p id="status"></p>
+
+<pre id="result"></pre>
+
+<script>
+const tronWeb = new TronWeb({
+  fullHost: 'https://api.trongrid.io'
+});
+
+let running = false;
+
+async function generate() {
+  const prefix = document.getElementById("prefix").value;
+  if (!prefix) {
+    alert("请输入前缀");
+    return;
+  }
+
+  running = true;
+  document.getElementById("status").innerText = "生成中，请稍候...";
+  document.getElementById("result").innerText = "";
+
+  while (running) {
+    const account = await tronWeb.createAccount();
+    const address = account.address.base58;
+
+    if (address.startsWith("T" + prefix)) {
+      running = false;
+      document.getElementById("status").innerText = "生成成功 ✅";
+      document.getElementById("result").innerText =
+`地址: ${address}
+私钥: ${account.privateKey}
+
+⚠️ 请妥善保存私钥，关闭页面后将无法找回`;
+    }
+  }
+}
+</script>
+
+</body>
+</html>
